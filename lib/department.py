@@ -85,6 +85,30 @@ class Department:
         rows = CURSOR.execute(sql).fetchall()
 
         return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod
+    def find_by_id(cls, id):
+        """Return a Department object corresponding to the table row matching the specified primary key"""
+        sql = """
+            SELECT *
+            FROM departments
+            WHERE id = ?
+        """
+
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+    
+    @classmethod
+    def find_by_name(cls, name):
+        """Return a Department object corresponding to first table row matching specified name"""
+        sql = """
+            SELECT *
+            FROM departments
+            WHERE name is ?
+        """
+
+        row = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(row) if row else None
 
     def update(self):
         """Update the table row corresponding to the current Department instance."""
@@ -105,3 +129,9 @@ class Department:
 
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
+
+         # Delete the dictionary entry using id as the key
+        del type(self).all[self.id]
+
+        # Set the id to None
+        self.id = None
